@@ -3,11 +3,13 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import javax.swing.*;
+import java.awt.event.*;
 
 
 public class Frame {
     public JFrame frame = new JFrame("Accounting System");
-    
+    Transaction[] transactions = new Transaction[200];
+    int count = 0;
     public Frame() {
         //main frame
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -82,30 +84,30 @@ public class Frame {
         btn3.setBounds(640, 200, 100, 30);
         
         //Choices nis Drop Box(E adjust nyalang ni nga paras debit ra ug paras credit nya e bonus nalang ang equity)
-        String[] DebitDropDown = {
+        String[] debitAccount = {
         "Choose Account", "Cash (Asset)", "Accounts Receivable (Asset)", "Accounts Payable (Liability)","Notes Payable (Liability)",
         "Sales Revenue (Income)", "Inventory (Asset)", "Prepaid Expense (Asset)",
         "Owner's Capital (Equity)", "Service Revenue (Income)", "Cost of Goods Sold (Expense)",
         "Equipment (Asset)", "Utilities Expense (Expense)", "Salaries Expense (Expense)", "Rent Expense (Expense)"
          };
 
-        String[] CreditDropDown = {
+        String[] creditAccount = {
         "Choose Account", "Cash (Asset)", "Accounts Receivable (Asset)", "Accounts Payable (Liability)","Notes Payable (Liability)",
         "Sales Revenue (Income)", "Inventory (Asset)", "Prepaid Expense (Asset)",
         "Owner's Capital (Equity)", "Service Revenue (Income)", "Cost of Goods Sold (Expense)",
         "Equipment (Asset)", "Utilities Expense (Expense)", "Salaries Expense (Expense)", "Rent Expense (Expense)"
          };
 
-        JComboBox<String> debitDropdown = new JComboBox<>(DebitDropDown);
-        debitDropdown.setSelectedIndex(0);
+        JComboBox<String> debitDropDown = new JComboBox<>(debitAccount);
+        debitDropDown.setSelectedIndex(0);
 
-        JComboBox<String> CreditDropdown = new JComboBox<>(CreditDropDown);
-        CreditDropdown.setSelectedIndex(0);
+        JComboBox<String> creditDropDown = new JComboBox<>(creditAccount);
+        creditDropDown.setSelectedIndex(0);
 
-        NewTransaction.add(debitDropdown);
-        debitDropdown.setBounds(140, 72, 1000, 25);
-        NewTransaction.add(CreditDropdown);
-        CreditDropdown.setBounds(140, 102, 1000, 25);
+        NewTransaction.add(debitDropDown);
+        debitDropDown.setBounds(140, 72, 1000, 25);
+        NewTransaction.add(creditDropDown);
+        creditDropDown.setBounds(140, 102, 1000, 25);
 
 
         // Mo refresh nis panel para makita ang new component pero para pop-up2 ta ni nya warasa nako gi gamit
@@ -138,6 +140,42 @@ public class Frame {
         // Add tabbed pane to frame
         frame.add(tabbedPane);
         frame.add(HeaderJPanel, BorderLayout.NORTH);
+
+        //functions ni diri
+        btn2.addActionListener((ActionEvent e) -> {
+            DateField.setText(null);
+            DescriptionField.setText(null);
+            debitDropDown.setSelectedIndex(0);
+            creditDropDown.setSelectedIndex(0);
+            AmountField.setText(null);
+        });
+
+        btn3.addActionListener((ActionEvent e) -> {
+            String date = DateField.getText();
+            String description = DescriptionField.getText();
+            String debit = (String) debitDropDown.getSelectedItem();
+            String credit = (String) creditDropDown.getSelectedItem();
+            double amount = Double.parseDouble(AmountField.getText());
+            count++;
+            int number = count;
+            transactions[count] = new Transaction(number, date, description, debit, credit, amount);
+
+            JOptionPane.showMessageDialog(null, "Transaction Saved!", "Transactions", JOptionPane.INFORMATION_MESSAGE);
+            
+            DateField.setText(null);
+            DescriptionField.setText(null);
+            debitDropDown.setSelectedIndex(0);
+            creditDropDown.setSelectedIndex(0);
+            AmountField.setText(null);
+            //trial purposes
+            System.out.println("Transaction number: " + number +
+                                "\nDate: " + date + 
+                                "\nDescription: " + description + 
+                                "\nDebit: " + debit + 
+                                "\nCredit: " + credit + 
+                                "\nAmount: " + amount);
+        });
+        
     }
     // Make frame visible
     public void show() {
