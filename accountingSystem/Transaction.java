@@ -1,17 +1,15 @@
 public class Transaction {
-    public int number;
     public String date;
     public String description;
-    public String debit;
-    public String credit;
+    public String debitAccount;
+    public String creditAccount;
     public double amount;
 
-    public Transaction(int number, String date, String description, String debit, String credit, double amount) {
-        this.number = number;
+    public Transaction(String date, String description, String debitAccount, String creditAccount, double amount) {
         this.date = date;
         this.description = description;
-        this.debit = debit;
-        this.credit = credit;
+        this.debitAccount = debitAccount;
+        this.creditAccount = creditAccount;
         this.amount = amount;
     }
 }
