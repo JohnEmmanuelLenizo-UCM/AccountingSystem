@@ -38,7 +38,7 @@ public class Frame {
         // ======================== NEW TRANSACTION TAB ========================
         JPanel NewTransaction = new JPanel();
         NewTransaction.setLayout(null);
-
+         
         JLabel DateLabel = new JLabel("Date (YYYY-MM-DD):");
         DateLabel.setBounds(20, 10, 210, 30);
         NewTransaction.add(DateLabel);
@@ -55,7 +55,7 @@ public class Frame {
         calendarButton.setFocusPainted(false);
         calendarButton.setMargin(new Insets(0, 0, 0, 0));
         NewTransaction.add(calendarButton);
-
+        // Calendar ActionListener
         calendarButton.addActionListener(e -> {
             JSpinner dateSpinner = new JSpinner(new SpinnerDateModel());
             JSpinner.DateEditor editor = new JSpinner.DateEditor(dateSpinner, "yyyy-MM-dd");
@@ -79,46 +79,46 @@ public class Frame {
                 DateField.setText(formattedDate);
             }
         });
-
+        // Description
         JLabel DescriptionLabel = new JLabel("Description:");
         DescriptionLabel.setBounds(20, 40, 100, 30);
         NewTransaction.add(DescriptionLabel);
-
+        // Description Field
         DescriptionField = new JTextField();
         DescriptionField.setBounds(140, 42, 1000, 25);
         NewTransaction.add(DescriptionField);
-
+        // Debit 
         JLabel DebitAccLabel = new JLabel("Debit Account:");
         DebitAccLabel.setBounds(20, 70, 100, 30);
         NewTransaction.add(DebitAccLabel);
-
+        // Credit
         JLabel CreditAccLabel = new JLabel("Credit Account:");
         CreditAccLabel.setBounds(20, 100, 100, 30);
         NewTransaction.add(CreditAccLabel);
-
+        // Amount
         JLabel AmountLabel = new JLabel("Amount:");
         AmountLabel.setBounds(20, 130, 100, 30);
         NewTransaction.add(AmountLabel);
-
+        // Amount Textfield
         AmountField = new JTextField();
         AmountField.setBounds(140, 132, 1000, 25);
         NewTransaction.add(AmountField);
-
+        // Accounts for Dropdown List
         String[] accounts = {
             "Choose Account", "Cash", "Accounts Receivable", "Inventory", "Prepaid Expenses",
             "Equipment", "Accounts Payable", "Notes Payable", "Owner's Capital",
             "Sales Revenue", "Service Revenue", "Cost of Goods Sold", "Rent Expense",
             "Salaries Expense", "Utilities Expense"
         };
-
+        // Debit Dropdown
         debitDropdown = new JComboBox<>(accounts);
         debitDropdown.setBounds(140, 72, 1000, 25);
         NewTransaction.add(debitDropdown);
-
+        // Credit Dropdown
         CreditDropdown = new JComboBox<>(accounts);
         CreditDropdown.setBounds(140, 102, 1000, 25);
         NewTransaction.add(CreditDropdown);
-
+        // ==================== BUTTONS ==================================
         JButton btnSave = new JButton("Save");
         btnSave.setBounds(640, 200, 100, 30);
         NewTransaction.add(btnSave);
@@ -133,48 +133,60 @@ public class Frame {
 
         // ======================== TRANSACTIONS TAB ========================
         JPanel TransactionTab = new JPanel(new BorderLayout());
+        //Table Model for Transactions
         tableModel = new DefaultTableModel(new Object[]{"Date", "Description", "Debit", "Credit", "Amount"}, 0);
         transactionTable = new JTable(tableModel);
         TransactionTab.add(new JScrollPane(transactionTable), BorderLayout.CENTER);
-
+        
+        // delete button for selected transactions
         JButton btnDeleteTransaction = new JButton("Delete Selected Transaction");
         TransactionTab.add(btnDeleteTransaction, BorderLayout.SOUTH);
         btnDeleteTransaction.addActionListener(e -> removeTransaction());
 
         // ======================== ACCOUNTS TAB ========================
+        JPanel AccountsTab = new JPanel(new BorderLayout());
+        // Accounts Table Model
         accountsTableModel = new DefaultTableModel(new Object[]{"Account", "Type", "Balance"}, 0);
         accountsTable = new JTable(accountsTableModel);
-        JPanel AccountsTab = new JPanel(new BorderLayout());
+        // Scrollpane for Accounts
         AccountsTab.add(new JScrollPane(accountsTable), BorderLayout.CENTER);
         initializeDefaultAccounts();
 
         // ======================== GENERAL JOURNAL ========================
+        JPanel JournalTab = new JPanel(new BorderLayout());
+        // General Journal Table Model
         journalTableModel = new DefaultTableModel(new Object[]{"Date", "Description", "Account", "Debit", "Credit"}, 0);
         journalTable = new JTable(journalTableModel);
-        JPanel JournalTab = new JPanel(new BorderLayout());
+        // Scrollpane for Journal
         JournalTab.add(new JScrollPane(journalTable), BorderLayout.CENTER);
 
         // ======================== GENERAL LEDGER ========================
+        JPanel LedgerTab = new JPanel(new BorderLayout());
+        // Table for Ledger
         ledgerTableModel = new DefaultTableModel(new Object[]{"Date", "Description", "Debit", "Credit", "Balance"}, 0);
         ledgerTable = new JTable(ledgerTableModel);
+        // Dropdown List for Accounts in the Ledger
         ledgerAccountDropdown = new JComboBox<>();
         for (Account acc : AccountingData.accounts) ledgerAccountDropdown.addItem(acc.name);
         ledgerAccountDropdown.addActionListener(e -> updateLedger(ledgerAccountDropdown.getSelectedItem().toString()));
 
-        JPanel LedgerTab = new JPanel(new BorderLayout());
         LedgerTab.add(ledgerAccountDropdown, BorderLayout.NORTH);
+        //Scrollpane for ledger
         LedgerTab.add(new JScrollPane(ledgerTable), BorderLayout.CENTER);
 
         // ======================== BALANCE SHEET ========================
+        // Balance Sheet main panel
         JPanel BalanceSheetTab = new JPanel(new BorderLayout());
-
+        
         JLabel sheetHeader = new JLabel("Balance Sheet");
         sheetHeader.setFont(new Font("Arial", Font.BOLD, 22));
         sheetHeader.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         BalanceSheetTab.add(sheetHeader, BorderLayout.NORTH);
-
+        
+        // Grid Panel
         JPanel centerPanel = new JPanel(new GridLayout(1, 2));
-
+        
+        // Assets (Left Side)
         JPanel leftPanel = new JPanel(new BorderLayout());
         JLabel leftLabel = new JLabel("Assets");
         leftLabel.setFont(new Font("Arial", Font.BOLD, 18));
@@ -182,7 +194,8 @@ public class Frame {
         assetTable = new JTable(assetModel);
         leftPanel.add(leftLabel, BorderLayout.NORTH);
         leftPanel.add(new JScrollPane(assetTable), BorderLayout.CENTER);
-
+        
+        // Liabilities and Equity (Right Side)
         JPanel rightPanel = new JPanel(new BorderLayout());
         JLabel rightLabel = new JLabel("Liabilities & Equity");
         rightLabel.setFont(new Font("Arial", Font.BOLD, 18));
@@ -190,21 +203,25 @@ public class Frame {
         liabilityTable = new JTable(liabilityModel);
         rightPanel.add(rightLabel, BorderLayout.NORTH);
         rightPanel.add(new JScrollPane(liabilityTable), BorderLayout.CENTER);
-
+        
+        // Add Right and Left Panels to the Center Panel
         centerPanel.add(leftPanel);
         centerPanel.add(rightPanel);
         BalanceSheetTab.add(centerPanel, BorderLayout.CENTER);
 
+        //Refresh Button and Print Button
         JButton btnRefreshBS = new JButton("Refresh");
         JButton btnPrintBS = new JButton("Print");
         JPanel bsButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         bsButtons.add(btnRefreshBS);
         bsButtons.add(btnPrintBS);
         BalanceSheetTab.add(bsButtons, BorderLayout.SOUTH);
+        
+        //Button Actions
         btnRefreshBS.addActionListener(e -> updateBalanceSheet());
-        btnPrintBS.addActionListener(e -> printBalanceSheet());
+        //btnPrintBS.addActionListener(e -> printBalanceSheet());
 
-        // ======================== BUTTON ACTIONS ========================
+        // ======================== BUTTON ACTIONS IN TRANSACTION TAB ========================
         btnSave.addActionListener(e -> saveTransaction());
         btnClear.addActionListener(e -> ClearFields());
         btnReset.addActionListener(e -> resetSystem());
@@ -221,7 +238,8 @@ public class Frame {
         frame.add(HeaderJPanel, BorderLayout.NORTH);
     }
 
-    // ======================== CORE LOGIC ========================
+    // ======================== CORE LOGIC ===========================
+    // ================= SAVING A NEW TRANSACTION ====================
     private void saveTransaction() {
         try {
             String date = DateField.getText();
@@ -229,29 +247,42 @@ public class Frame {
             String debit = debitDropdown.getSelectedItem().toString();
             String credit = CreditDropdown.getSelectedItem().toString();
             double amount = Double.parseDouble(AmountField.getText());
-
+            
+            // Shows Message Dialog if user does not choose a type of account in debit or credit
             if (debit.equals("Choose Account") || credit.equals("Choose Account")) {
                 JOptionPane.showMessageDialog(frame, "Select valid accounts.");
                 return;
             }
-
+            if (debit.equals(credit) || credit.equals(debit)) {
+                JOptionPane.showMessageDialog(frame, "Select valid accounts.");
+                return;
+            }
+            // Transfer values to transaction object and array
             Transaction transaction = new Transaction(date, desc, debit, credit, amount);
             AccountingData.transactions.add(transaction);
+            // adding the values of the new transaction to the table model of the transactions tab
             tableModel.addRow(new Object[]{date, desc, debit, credit, amount});
-
+            // adding the values of the new transaction to the table model of the general journal tab
+            // debit
             journalTableModel.addRow(new Object[]{date, desc, debit, amount, ""});
+            // credit
             journalTableModel.addRow(new Object[]{date, desc, credit, "", amount});
+            // adding the values to AccountingData class journalEntries arraylist
             AccountingData.journalEntries.add(new JournalEntry(date, desc, debit, amount, 0));
             AccountingData.journalEntries.add(new JournalEntry(date, desc, credit, 0, amount));
-
-            updateAccountBalance(debit, amount, true);
-            updateAccountBalance(credit, amount, false);
+            // using the updateAccountBalance() method to update the data in the Accounts Tab
+            updateAccountBalance(debit, amount, true); // this is for debit
+            updateAccountBalance(credit, amount, false); // this is for credit
             refreshAccountsTable();
+            // update each item of the ledger 
             updateLedger(ledgerAccountDropdown.getSelectedItem().toString());
+            // update the balance sheet
             updateBalanceSheet();
-
+            // Pop up message after saving a new transaction
             JOptionPane.showMessageDialog(frame, "Transaction saved.");
+            // Clears fields in the new transactions tab after succesfully saving a new transaction
             ClearFields();
+            
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(frame, "Error: " + ex.getMessage());
         }
@@ -259,16 +290,18 @@ public class Frame {
 // ============== REMOVE TRANSACTIONS, USES THE RECALCULATE METHOD TO UPDATE ACCOUNT BALANCE ==================
     private void removeTransaction() {
         int selectedRow = transactionTable.getSelectedRow();
+        // pop up message if haven't selected any transaction to delete
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(frame, "Select a transaction to delete.");
             return;
         }
-
+        // getting the string value of the date and description of the selected transaction, para i compare sa data nga naa sa AccountingData class
         String date = tableModel.getValueAt(selectedRow, 0).toString();
         String desc = tableModel.getValueAt(selectedRow, 1).toString();
-
+        // Removing the data in the transactions array and the journalEntries array of the AccountingData object that is similar to the values of the selected transaction
         AccountingData.transactions.removeIf(t -> t.date.equals(date) && t.description.equals(desc));
         AccountingData.journalEntries.removeIf(j -> j.date.equals(date) && j.description.equals(desc));
+        // Removing the row of the selected transactions in the transaction tab's table model
         tableModel.removeRow(selectedRow);
 
         recalculateAccountBalances();
@@ -278,7 +311,7 @@ public class Frame {
 
         JOptionPane.showMessageDialog(frame, "Transaction removed.");
     }
-// ============ WAPA NI NAHUMAN ===================
+// ============ WAPA NI NAHUMAN INGON SI BRYLLE ===================
     private void printBalanceSheet() {
         try {
             assetTable.print();
