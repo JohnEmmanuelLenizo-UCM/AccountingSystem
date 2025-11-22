@@ -3,9 +3,12 @@ import java.awt.print.PrinterException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.concurrent.Flow;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.SpinnerDateModel;
+import javax.swing.table.TableModel;
+import javax.swing.border.Border;
 
 public class Frame {
     public JFrame frame = new JFrame("Accounting System");
@@ -132,15 +135,42 @@ public class Frame {
         NewTransaction.add(btnReset);
 
         // ======================== TRANSACTIONS TAB ========================
-        JPanel TransactionTab = new JPanel(new BorderLayout());
+        JPanel TransactionTab = new JPanel();
+        TransactionTab.setLayout(new BoxLayout(TransactionTab, BoxLayout.Y_AXIS));
+        // Search bar for Transactions
+        JPanel searchPanel = new JPanel();
+        JTextField searchField = new JTextField();
+        JLabel searchLabel = new JLabel("Search Transactions: ");
+        JButton searchBtn = new JButton("Search");
+        JButton cancelSearch = new JButton("Cancel");
+        searchPanel.setLayout(new BoxLayout(searchPanel, BoxLayout.X_AXIS));
+        searchField.setMaximumSize(new Dimension(1000, 30));
+        searchBtn.setMaximumSize(new Dimension(100, 30));
+        cancelSearch.setMaximumSize(new Dimension(100, 30));
+        searchBtn.setFocusable(false);
+        cancelSearch.setFocusable(false);
+        searchPanel.add(searchLabel);
+        searchPanel.add(searchField);
+        searchPanel.add(searchBtn);
+        searchPanel.add(cancelSearch);
+        TransactionTab.add(Box.createRigidArea(new Dimension(0, 5)));
+        TransactionTab.add(searchPanel);
+        TransactionTab.add(Box.createRigidArea(new Dimension(0, 5)));
+        searchBtn.addActionListener(e -> searchTransaction(searchField));
+        cancelSearch.addActionListener(e -> updateTransactionTable());
+
+        //Table Model for Transactions
+        JPanel TransactionPanel = new JPanel(new BorderLayout());
+        TransactionTab.add(TransactionPanel);
+
         //Table Model for Transactions
         tableModel = new DefaultTableModel(new Object[]{"Date", "Description", "Debit", "Credit", "Amount"}, 0);
         transactionTable = new JTable(tableModel);
-        TransactionTab.add(new JScrollPane(transactionTable), BorderLayout.CENTER);
+        TransactionPanel.add(new JScrollPane(transactionTable), BorderLayout.CENTER);
         
         // delete button for selected transactions
         JButton btnDeleteTransaction = new JButton("Delete Selected Transaction");
-        TransactionTab.add(btnDeleteTransaction, BorderLayout.SOUTH);
+        TransactionPanel.add(btnDeleteTransaction, BorderLayout.SOUTH);
         btnDeleteTransaction.addActionListener(e -> removeTransaction());
 
         // ======================== ACCOUNTS TAB ========================
@@ -287,6 +317,24 @@ public class Frame {
             JOptionPane.showMessageDialog(frame, "Error: " + ex.getMessage());
         }
     }
+// ============== SEARCH FUNCTION SA TRANSACTIONS TAB ==============
+private void searchTransaction(JTextField searchField) {
+    String search = searchField.getText().trim().toLowerCase().toString();
+    tableModel.setRowCount(0);
+    for (Transaction acc: AccountingData.transactions) {
+        if (acc.date.toLowerCase().contains(search) || acc.description.toLowerCase().contains(search) || acc.debitAccount.toLowerCase().contains(search) || acc.creditAccount.toLowerCase().contains(search)) {
+            tableModel.addRow(new Object[]{acc.date, acc.description, acc.debitAccount, acc.creditAccount, acc.amount});
+        }
+    }
+}
+
+// ============== UPDATE TRANSACTIONS TABLE ==================
+private void updateTransactionTable() {
+    tableModel.setRowCount(0);
+    for (Transaction acc: AccountingData.transactions) {
+        tableModel.addRow(new Object[]{acc.date, acc.description, acc.debitAccount, acc.creditAccount, acc.amount});
+    }
+}
 // ============== REMOVE TRANSACTIONS, USES THE RECALCULATE METHOD TO UPDATE ACCOUNT BALANCE ==================
     private void removeTransaction() {
         int selectedRow = transactionTable.getSelectedRow();
@@ -350,15 +398,17 @@ public class Frame {
         liabilityModel.addRow(new Object[]{"Total Liabilities & Equity", String.format("%.2f", totalLiaEquity)});
     }
 // ================ INITIALIZE THE ACCOUNTS PANEL WITH DEFAULT ACCOUNTS VALUES =================
-    private void initializeDefaultAccounts() {
+private void initializeDefaultAccounts() {
         String[][] defaultAccounts = {
             {"Cash", "Asset"}, {"Accounts Receivable", "Asset"}, {"Inventory", "Asset"},
             {"Prepaid Expenses", "Asset"}, {"Equipment", "Asset"},
             {"Accounts Payable", "Liability"}, {"Notes Payable", "Liability"},
-            {"Owner's Capital", "Equity"}
+            {"Owner's Capital", "Equity"}, {"Sales Revenue", "Income"},
+            {"Service Revenue", "Income"}, {"Cost of Goods Sold", "Expense"}, 
+            {"Rent Expense", "Expense"}, {"Salaries Expense", "Expense"}, 
+            {"Utilities Expense", "Expense"}
         };
-
-        for (String[] accData : defaultAccounts) {
+            for (String[] accData : defaultAccounts) {
             Account acc = new Account(accData[0], accData[1]);
             AccountingData.accounts.add(acc);
             accountsTableModel.addRow(new Object[]{acc.name, acc.type, "0.00"});
