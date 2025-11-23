@@ -108,10 +108,10 @@ public class Frame {
         NewTransaction.add(AmountField);
         // Accounts for Dropdown List
         String[] accounts = {
-            "Choose Account", "Cash", "Accounts Receivable", "Inventory", "Prepaid Expenses",
-            "Equipment", "Accounts Payable", "Notes Payable", "Owner's Capital",
-            "Sales Revenue", "Service Revenue", "Cost of Goods Sold", "Rent Expense",
-            "Salaries Expense", "Utilities Expense"
+            "Choose Account", "Cash [Asset]", "Accounts Receivable [Asset]", "Inventory [Asset]", "Prepaid Expenses [Asset]",
+            "Equipment [Asset]", "Accounts Payable [Liability]", "Notes Payable [Liability]", "Owner's Capital [Equity]",
+            "Sales Revenue [Income]", "Service Revenue [Income]", "Cost of Goods Sold [Income]", "Rent Expense [Expense]",
+            "Salaries Expense [Expense]", "Utilities Expense [Expense]"
         };
         // Debit Dropdown
         debitDropdown = new JComboBox<>(accounts);
