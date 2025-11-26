@@ -427,7 +427,7 @@ private void initializeDefaultAccounts() {
             }
         }
     }
-// ================ REFRESH BALANCE SHEET =======================
+// ================ REFRESH ACCOUNTS TABLE ======================
     private void refreshAccountsTable() {
         accountsTableModel.setRowCount(0);
         for (Account acc : AccountingData.accounts)
