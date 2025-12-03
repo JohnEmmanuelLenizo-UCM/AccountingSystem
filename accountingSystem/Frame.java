@@ -142,22 +142,22 @@ public class Frame {
         JTextField searchField = new JTextField();
         JLabel searchLabel = new JLabel("Search Transactions: ");
         JButton searchBtn = new JButton("Search");
-        JButton cancelSearch = new JButton("Cancel");
+        JButton clearSearch = new JButton("Clear");
         searchPanel.setLayout(new BoxLayout(searchPanel, BoxLayout.X_AXIS));
         searchField.setMaximumSize(new Dimension(1000, 30));
         searchBtn.setMaximumSize(new Dimension(100, 30));
-        cancelSearch.setMaximumSize(new Dimension(100, 30));
+        clearSearch.setMaximumSize(new Dimension(100, 30));
         searchBtn.setFocusable(false);
-        cancelSearch.setFocusable(false);
+        clearSearch.setFocusable(false);
         searchPanel.add(searchLabel);
         searchPanel.add(searchField);
         searchPanel.add(searchBtn);
-        searchPanel.add(cancelSearch);
+        searchPanel.add(clearSearch);
         TransactionTab.add(Box.createRigidArea(new Dimension(0, 5)));
         TransactionTab.add(searchPanel);
         TransactionTab.add(Box.createRigidArea(new Dimension(0, 5)));
         searchBtn.addActionListener(e -> searchTransaction(searchField));
-        cancelSearch.addActionListener(e -> updateTransactionTable());
+        clearSearch.addActionListener(e -> updateTransactionTable());
 
         //Table Model for Transactions
         JPanel TransactionPanel = new JPanel(new BorderLayout());
@@ -324,6 +324,11 @@ private void searchTransaction(JTextField searchField) {
     for (Transaction acc: AccountingData.transactions) {
         if (acc.date.toLowerCase().contains(search) || acc.description.toLowerCase().contains(search) || acc.debitAccount.toLowerCase().contains(search) || acc.creditAccount.toLowerCase().contains(search)) {
             tableModel.addRow(new Object[]{acc.date, acc.description, acc.debitAccount, acc.creditAccount, acc.amount});
+        }
+        if (!acc.date.toLowerCase().contains(search) && !acc.description.toLowerCase().contains(search) && !acc.debitAccount.toLowerCase().contains(search) && !acc.creditAccount.toLowerCase().contains(search)) {
+            JOptionPane.showMessageDialog(null, "Nothing Found.", "Search", JOptionPane.INFORMATION_MESSAGE);
+            searchField.setText("");
+            tableModel.setRowCount(0);
         }
     }
 }
