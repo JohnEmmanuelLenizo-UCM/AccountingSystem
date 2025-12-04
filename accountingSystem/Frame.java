@@ -274,7 +274,6 @@ public class Frame {
         try {
             String newDebit = debitDropdown.getSelectedItem().toString();
             String newCredit = CreditDropdown.getSelectedItem().toString();
-            System.out.println(newCredit + " " + newDebit);
             
             if (newDebit.contains("(Asset)")) newDebit = newDebit.replace("(Asset)", " ");
             if (newDebit.contains("(Liability)")) newDebit = newDebit.replace("(Liability)", " ");
@@ -287,8 +286,6 @@ public class Frame {
             if (newCredit.contains("(Equity)")) newCredit = newCredit.replace("(Equity)", " ");
             if (newCredit.contains("(Income)")) newCredit = newCredit.replace("(Income)", " ");
             if (newCredit.contains("(Expense)")) newCredit = newCredit.replace("(Expense)", " ");
-            
-            System.out.println(newCredit + " " + newDebit);
             
             String date = DateField.getText();
             String desc = DescriptionField.getText();
@@ -441,7 +438,9 @@ private void initializeDefaultAccounts() {
                     acc.balance += amount;
                 else if ((acc.type.equals("Liability") || acc.type.equals("Equity") || acc.type.equals("Income")) && !isDebit)
                     acc.balance += amount;
-                else
+                else if ((acc.type.equals("Asset") || acc.type.equals("Expense")) && !isDebit)
+                    acc.balance -= amount;
+                else if ((acc.type.equals("Asset") || acc.type.equals("Expense")) && isDebit)
                     acc.balance -= amount;
             }
         }
