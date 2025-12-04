@@ -108,10 +108,10 @@ public class Frame {
         NewTransaction.add(AmountField);
         // Accounts for Dropdown List
         String[] accounts = {
-            "Choose Account", "Cash", "Accounts Receivable", "Inventory", "Prepaid Expenses",
-            "Equipment", "Accounts Payable", "Notes Payable", "Owner's Capital",
-            "Sales Revenue", "Service Revenue", "Cost of Goods Sold", "Rent Expense",
-            "Salaries Expense", "Utilities Expense"
+            "Choose Account", "Cash (Asset)", "Accounts Receivable (Asset)", "Inventory (Asset)", "Prepaid Expenses (Asset)",
+            "Equipment (Asset)", "Accounts Payable (Liability)", "Notes Payable (Liability)", "Owner's Capital (Equity)",
+            "Sales Revenue (Income)", "Service Revenue (Income)", "Cost of Goods Sold (Income)", "Rent Expense (Expense)",
+            "Salaries Expense (Expense)", "Utilities Expense (Expense)"
         };
         // Debit Dropdown
         debitDropdown = new JComboBox<>(accounts);
@@ -272,10 +272,28 @@ public class Frame {
     // ================= SAVING A NEW TRANSACTION ====================
     private void saveTransaction() {
         try {
+            String newDebit = debitDropdown.getSelectedItem().toString();
+            String newCredit = CreditDropdown.getSelectedItem().toString();
+            System.out.println(newCredit + " " + newDebit);
+            
+            if (newDebit.contains("(Asset)")) newDebit = newDebit.replace("(Asset)", " ");
+            if (newDebit.contains("(Liability)")) newDebit = newDebit.replace("(Liability)", " ");
+            if (newDebit.contains("(Equity)")) newDebit = newDebit.replace("(Equity)", " ");
+            if (newDebit.contains("(Income)")) newDebit = newDebit.replace("(Income)", " ");
+            if (newDebit.contains("(Expense)")) newDebit = newDebit.replace("(Expense)", " ");
+            
+            if (newCredit.contains("(Asset)")) newCredit = newCredit.replace("(Asset)", " ");
+            if (newCredit.contains("(Liability)")) newCredit = newCredit.replace("(Liability)", " ");
+            if (newCredit.contains("(Equity)")) newCredit = newCredit.replace("(Equity)", " ");
+            if (newCredit.contains("(Income)")) newCredit = newCredit.replace("(Income)", " ");
+            if (newCredit.contains("(Expense)")) newCredit = newCredit.replace("(Expense)", " ");
+            
+            System.out.println(newCredit + " " + newDebit);
+            
             String date = DateField.getText();
             String desc = DescriptionField.getText();
-            String debit = debitDropdown.getSelectedItem().toString();
-            String credit = CreditDropdown.getSelectedItem().toString();
+            String debit = newDebit.trim();
+            String credit = newCredit.trim();
             double amount = Double.parseDouble(AmountField.getText());
             
             // Shows Message Dialog if user does not choose a type of account in debit or credit
