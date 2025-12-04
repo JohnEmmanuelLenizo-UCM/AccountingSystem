@@ -440,7 +440,7 @@ private void initializeDefaultAccounts() {
                     acc.balance += amount;
                 else if ((acc.type.equals("Asset") || acc.type.equals("Expense")) && !isDebit)
                     acc.balance -= amount;
-                else if ((acc.type.equals("Asset") || acc.type.equals("Expense")) && isDebit)
+                else if ((acc.type.equals("Liability") || acc.type.equals("Equity")) && isDebit)
                     acc.balance -= amount;
             }
         }
