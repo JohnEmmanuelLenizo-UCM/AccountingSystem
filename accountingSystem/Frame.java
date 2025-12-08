@@ -110,7 +110,7 @@ public class Frame {
         String[] accounts = {
             "Choose Account", "Cash (Asset)", "Accounts Receivable (Asset)", "Inventory (Asset)", "Prepaid Expenses (Asset)",
             "Equipment (Asset)", "Accounts Payable (Liability)", "Notes Payable (Liability)", "Owner's Capital (Equity)",
-            "Sales Revenue (Income)", "Service Revenue (Income)", "Cost of Goods Sold (Income)", "Rent Expense (Expense)",
+            "Sales Revenue (Income)", "Service Revenue (Income)", "Cost of Goods Sold (Expense)", "Rent Expense (Expense)",
             "Salaries Expense (Expense)", "Utilities Expense (Expense)"
         };
         // Debit Dropdown
@@ -333,24 +333,59 @@ public class Frame {
         }
     }
 // ============== SEARCH FUNCTION SA TRANSACTIONS TAB ==============
-private void searchTransaction(JTextField searchField) {
-    String search = searchField.getText().trim().toLowerCase().toString();
-    tableModel.setRowCount(0);
-    for (Transaction acc: AccountingData.transactions) {
-        if ((acc.date.toLowerCase().contains(search) || acc.description.toLowerCase().contains(search)) || (acc.debitAccount.toLowerCase().contains(search) || acc.creditAccount.toLowerCase().contains(search))) {
-            tableModel.addRow(new Object[]{acc.date, acc.description, acc.debitAccount, acc.creditAccount, acc.amount});
-        }
-    }
-}
+   private void searchTransaction(JTextField searchField) {
+       String search = searchField.getText().trim().toLowerCase();
+   
+       // If search is empty, show all transactions
+       if (search.isEmpty()) {
+           updateTransactionTable(searchField);
+           return;
+       }
+   
+       tableModel.setRowCount(0);
+       boolean found = false;
+   
+       for (Transaction t : AccountingData.transactions) { //searches the existing data in the transactions array
+           if (
+              t.date.toLowerCase().contains(search) ||
+              t.description.toLowerCase().contains(search) ||
+              t.debitAccount.toLowerCase().contains(search) ||
+              t.creditAccount.toLowerCase().contains(search) ||
+              String.valueOf(t.amount).contains(search)
+           ) {
+               tableModel.addRow(new Object[]{
+                   t.date,
+                   t.description,
+                   t.debitAccount,
+                   t.creditAccount,
+                   fmt(t.amount)
+               });
+               found = true;
+           }
+       }
+   
+       // If nothing is found
+       if (!found) {
+           JOptionPane.showMessageDialog(frame, "No matching transaction found.", "Search Result", JOptionPane.INFORMATION_MESSAGE);
+       }
+   }
+   
 
 // ============== UPDATE TRANSACTIONS TABLE ==================
-private void updateTransactionTable(JTextField searchField) {
-    searchField.setText(" ");
-    tableModel.setRowCount(0);
-    for (Transaction acc: AccountingData.transactions) {
-        tableModel.addRow(new Object[]{acc.date, acc.description, acc.debitAccount, acc.creditAccount, acc.amount});
+    private void updateTransactionTable(JTextField searchField) {
+        searchField.setText("");
+        tableModel.setRowCount(0);
+    
+        for (Transaction t : AccountingData.transactions) {
+            tableModel.addRow(new Object[]{
+                t.date,
+                t.description,
+                t.debitAccount,
+                t.creditAccount,
+                fmt(t.amount)
+            });
+        }
     }
-}
 // ============== REMOVE TRANSACTIONS, USES THE RECALCULATE METHOD TO UPDATE ACCOUNT BALANCE ==================
     private void removeTransaction() {
         int selectedRow = transactionTable.getSelectedRow();
@@ -403,16 +438,7 @@ private void updateTransactionTable(JTextField searchField) {
 
         JOptionPane.showMessageDialog(frame, "Transaction removed.");
     }
-// ============ WAPA NI NAHUMAN INGON SI BRYLLE ===================
-    private void printBalanceSheet() {
-        try {
-            assetTable.print();
-            liabilityTable.print();
-            JOptionPane.showMessageDialog(frame, "Balance Sheet sent to printer.");
-        } catch (PrinterException pe) {
-            JOptionPane.showMessageDialog(frame, "Printing failed: " + pe.getMessage());
-        }
-    }
+
 // =========== RECALCULATE ACCOUNT BALANCES IF NAAY GI DELETE NGA TRANSACTION ================
     private void recalculateAccountBalances() {
         for (Account acc : AccountingData.accounts) acc.balance = 0;
@@ -468,7 +494,7 @@ private void initializeDefaultAccounts() {
                     acc.balance += amount;
                 else if ((acc.type.equals("Asset") || acc.type.equals("Expense")) && !isDebit)
                     acc.balance -= amount;
-                else if ((acc.type.equals("Liability") || acc.type.equals("Equity")) && isDebit)
+                else if ((acc.type.equals("Liability") || acc.type.equals("Equity") || acc.type.equals("Income")) && isDebit)
                     acc.balance -= amount;
             }
         }
@@ -519,7 +545,7 @@ private void initializeDefaultAccounts() {
         initializeDefaultAccounts();
         JOptionPane.showMessageDialog(frame, "System has been reset.");
     }
-//================== REMOVE NEGATIVE SIGNS ========================
+//================== REMOVE NEGATIVE SIGNS IN TABLES ========================
 private String fmt(double value) {
     return String.format("%.2f", Math.abs(value));
 }
