@@ -157,7 +157,7 @@ public class Frame {
         TransactionTab.add(searchPanel);
         TransactionTab.add(Box.createRigidArea(new Dimension(0, 5)));
         searchBtn.addActionListener(e -> searchTransaction(searchField));
-        clearSearch.addActionListener(e -> updateTransactionTable());
+        clearSearch.addActionListener(e -> updateTransactionTable(searchField));
 
         //Table Model for Transactions
         JPanel TransactionPanel = new JPanel(new BorderLayout());
@@ -241,10 +241,10 @@ public class Frame {
 
         //Refresh Button and Print Button
         JButton btnRefreshBS = new JButton("Refresh");
-        JButton btnPrintBS = new JButton("Print");
+        //JButton btnPrintBS = new JButton("Print");
         JPanel bsButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         bsButtons.add(btnRefreshBS);
-        bsButtons.add(btnPrintBS);
+        //bsButtons.add(btnPrintBS);
         BalanceSheetTab.add(bsButtons, BorderLayout.SOUTH);
         
         //Button Actions
@@ -306,12 +306,12 @@ public class Frame {
             Transaction transaction = new Transaction(date, desc, debit, credit, amount);
             AccountingData.transactions.add(transaction);
             // adding the values of the new transaction to the table model of the transactions tab
-            tableModel.addRow(new Object[]{date, desc, debit, credit, amount});
+            tableModel.addRow(new Object[]{date, desc, debit, credit, fmt(amount)});
             // adding the values of the new transaction to the table model of the general journal tab
             // debit
-            journalTableModel.addRow(new Object[]{date, desc, debit, amount, ""});
+            journalTableModel.addRow(new Object[]{date, desc, debit, fmt(amount), ""});
             // credit
-            journalTableModel.addRow(new Object[]{date, desc, credit, "", amount});
+            journalTableModel.addRow(new Object[]{date, desc, credit, "", fmt(amount)});
             // adding the values to AccountingData class journalEntries arraylist
             AccountingData.journalEntries.add(new JournalEntry(date, desc, debit, amount, 0));
             AccountingData.journalEntries.add(new JournalEntry(date, desc, credit, 0, amount));
@@ -337,15 +337,15 @@ private void searchTransaction(JTextField searchField) {
     String search = searchField.getText().trim().toLowerCase().toString();
     tableModel.setRowCount(0);
     for (Transaction acc: AccountingData.transactions) {
-        if (acc.date.toLowerCase().contains(search) || acc.description.toLowerCase().contains(search) || acc.debitAccount.toLowerCase().contains(search) || acc.creditAccount.toLowerCase().contains(search)) {
+        if ((acc.date.toLowerCase().contains(search) || acc.description.toLowerCase().contains(search)) || (acc.debitAccount.toLowerCase().contains(search) || acc.creditAccount.toLowerCase().contains(search))) {
             tableModel.addRow(new Object[]{acc.date, acc.description, acc.debitAccount, acc.creditAccount, acc.amount});
         }
-
     }
 }
 
 // ============== UPDATE TRANSACTIONS TABLE ==================
-private void updateTransactionTable() {
+private void updateTransactionTable(JTextField searchField) {
+    searchField.setText(" ");
     tableModel.setRowCount(0);
     for (Transaction acc: AccountingData.transactions) {
         tableModel.addRow(new Object[]{acc.date, acc.description, acc.debitAccount, acc.creditAccount, acc.amount});
@@ -362,12 +362,40 @@ private void updateTransactionTable() {
         // getting the string value of the date and description of the selected transaction, para i compare sa data nga naa sa AccountingData class
         String date = tableModel.getValueAt(selectedRow, 0).toString();
         String desc = tableModel.getValueAt(selectedRow, 1).toString();
+        String debit = tableModel.getValueAt(selectedRow, 2).toString();
+        String credit = tableModel.getValueAt(selectedRow, 3).toString();
+        double amount = Double.parseDouble(tableModel.getValueAt(selectedRow, 4).toString()); 
         // Removing the data in the transactions array and the journalEntries array of the AccountingData object that is similar to the values of the selected transaction
-        AccountingData.transactions.removeIf(t -> t.date.equals(date) && t.description.equals(desc));
-        AccountingData.journalEntries.removeIf(j -> j.date.equals(date) && j.description.equals(desc));
+        AccountingData.transactions.removeIf(t ->
+        t.date.equals(date) &&
+        t.description.equals(desc) &&
+        t.debitAccount.equals(debit) &&
+        t.creditAccount.equals(credit) &&
+        t.amount == amount
+        );
+        
+        AccountingData.journalEntries.removeIf(j ->
+        j.date.equals(date) &&
+        j.description.equals(desc) &&
+        (
+            (j.account.equals(debit) && j.debit == amount) ||
+            (j.account.equals(credit) && j.credit == amount)
+        )
+        );
         // Removing the row of the selected transactions in the transaction tab's table model
         tableModel.removeRow(selectedRow);
-
+        // Removing the rows of the selevted transactions in the journal table model
+        for (int i = journalTableModel.getRowCount() - 1; i >= 0; i--) {
+           String jDate = journalTableModel.getValueAt(i, 0).toString();
+           String jDesc = journalTableModel.getValueAt(i, 1).toString();
+           String jAccount = journalTableModel.getValueAt(i, 2).toString();
+   
+           if (jDate.equals(date) && jDesc.equals(desc) &&
+                   (jAccount.equals(debit) || jAccount.equals(credit))) {
+               journalTableModel.removeRow(i);
+           }
+        }
+        
         recalculateAccountBalances();
         refreshAccountsTable();
         updateLedger(ledgerAccountDropdown.getSelectedItem().toString());
@@ -402,16 +430,16 @@ private void updateTransactionTable() {
 
         for (Account acc : AccountingData.accounts) {
             if (acc.type.equals("Asset")) {
-                assetModel.addRow(new Object[]{acc.name, String.format("%.2f", acc.balance)});
+                assetModel.addRow(new Object[]{acc.name, fmt(acc.balance)}); //removed negative
                 totalAssets += acc.balance;
             } else {
-                liabilityModel.addRow(new Object[]{acc.name, String.format("%.2f", acc.balance)});
+                liabilityModel.addRow(new Object[]{acc.name, fmt(acc.balance)}); //removed negative
                 totalLiaEquity += acc.balance;
             }
         }
 
-        assetModel.addRow(new Object[]{"Total Assets", String.format("%.2f", totalAssets)});
-        liabilityModel.addRow(new Object[]{"Total Liabilities & Equity", String.format("%.2f", totalLiaEquity)});
+        assetModel.addRow(new Object[]{"Total Assets", fmt(totalAssets)}); //removed negative
+        liabilityModel.addRow(new Object[]{"Total Liabilities & Equity", fmt(totalLiaEquity)}); //removed negative
     }
 // ================ INITIALIZE THE ACCOUNTS PANEL WITH DEFAULT ACCOUNTS VALUES =================
 private void initializeDefaultAccounts() {
@@ -449,7 +477,7 @@ private void initializeDefaultAccounts() {
     private void refreshAccountsTable() {
         accountsTableModel.setRowCount(0);
         for (Account acc : AccountingData.accounts)
-            accountsTableModel.addRow(new Object[]{acc.name, acc.type, String.format("%.2f", acc.balance)});
+            accountsTableModel.addRow(new Object[]{acc.name, acc.type, fmt(acc.balance)}); //removed negative
     }
 // ================ UPDATE GENERAL LEDGER =========================
     private void updateLedger(String accountName) {
@@ -462,7 +490,7 @@ private void initializeDefaultAccounts() {
                     entry.date, entry.description,
                     entry.debit > 0 ? entry.debit : "",
                     entry.credit > 0 ? entry.credit : "",
-                    runningBalance
+                    fmt(runningBalance)
                 });
             }
         }
@@ -491,8 +519,14 @@ private void initializeDefaultAccounts() {
         initializeDefaultAccounts();
         JOptionPane.showMessageDialog(frame, "System has been reset.");
     }
+//================== REMOVE NEGATIVE SIGNS ========================
+private String fmt(double value) {
+    return String.format("%.2f", Math.abs(value));
+}
+
 //================== SET VISIBLE ===============================
     public void show() {
         frame.setVisible(true);
     }
 }
+
