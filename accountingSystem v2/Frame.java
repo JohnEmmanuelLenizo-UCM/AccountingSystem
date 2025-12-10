@@ -558,7 +558,7 @@ private void initializeDefaultAccounts() {
         ledgerTableModel.setRowCount(0);
         assetModel.setRowCount(0);
         liabilityModel.setRowCount(0);
-
+        ClearFields();
         initializeDefaultAccounts();
         JOptionPane.showMessageDialog(frame, "System has been reset.");
     }
@@ -580,8 +580,6 @@ private String fmt(double value) {
     
             assetTable.print(JTable.PrintMode.FIT_WIDTH, header1, null);
             liabilityTable.print(JTable.PrintMode.FIT_WIDTH, header2, null);
-    
-            JOptionPane.showMessageDialog(frame, "Balance Sheet printed successfully.");
         } catch (PrinterException e) {
             JOptionPane.showMessageDialog(frame, "Printing failed: " + e.getMessage());
         }
@@ -622,8 +620,6 @@ private String fmt(double value) {
             MessageFormat footer = new MessageFormat("Page {0}");
     
             ledgerTable.print(JTable.PrintMode.FIT_WIDTH, header, footer);
-    
-            JOptionPane.showMessageDialog(frame, "Ledger printed successfully.");
         } catch (PrinterException e) {
             JOptionPane.showMessageDialog(frame, "Printing failed: " + e.getMessage());
         }
